@@ -1,0 +1,1036 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Brand Kit Image Processor</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXX" crossorigin="anonymous"></script>
+    <style>
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .glass-effect {
+            backdrop-filter: blur(16px);
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .drag-over {
+            background: rgba(102, 126, 234, 0.1);
+            border-color: #667eea;
+        }
+        .processing-animation {
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        .slide-in {
+            animation: slideIn 0.3s ease-out;
+        }
+        @keyframes slideIn {
+            from { transform: translateY(-20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        .fade-in {
+            animation: fadeIn 0.5s ease-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+    </style>
+</head>
+<body class="min-h-screen gradient-bg">
+    <div class="container mx-auto px-4 py-8">
+        <!-- Header -->
+        <div class="text-center mb-12">
+            <h1 class="text-5xl font-bold text-white mb-4">Brand Kit Image Processor</h1>
+            <p class="text-xl text-white opacity-90">Resize, crop, and watermark your images with style</p>
+        </div>
+
+        <!-- Main Content -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Left Column - Upload & Brand Kit -->
+            <div class="lg:col-span-1 space-y-6">
+                <!-- Image Upload Section -->
+                <div class="glass-effect rounded-xl p-6 shadow-xl">
+                    <h2 class="text-2xl font-semibold text-white mb-4">📤 Upload Images</h2>
+                    <div id="dropZone" class="border-2 border-dashed border-white/30 rounded-lg p-8 text-center transition-all duration-300 hover:border-white/50 cursor-pointer">
+                        <div class="text-white/70 mb-4">
+                            <svg class="w-12 h-12 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                            </svg>
+                            <p class="text-lg">Drag & drop images here</p>
+                            <p class="text-sm opacity-75">or click to select files</p>
+                        </div>
+                        <input type="file" id="imageInput" multiple accept="image/*" class="hidden">
+                    </div>
+                    
+                    <!-- Uploaded Images List -->
+                    <div id="uploadedImages" class="mt-4 space-y-2"></div>
+                </div>
+
+                <!-- Brand Kit Section -->
+                <div class="glass-effect rounded-xl p-6 shadow-xl">
+                    <h2 class="text-2xl font-semibold text-white mb-4">🎨 Brand Kit</h2>
+                    
+                    <!-- Logo Upload -->
+                    <div class="mb-6">
+                        <label class="block text-white font-medium mb-2">Logo</label>
+                        <input type="file" id="logoInput" accept="image/*" class="w-full p-2 rounded-lg bg-white/20 text-white border border-white/30 focus:border-white/50 focus:outline-none">
+                        <div id="logoPreview" class="mt-2 hidden">
+                            <img id="logoImage" class="max-w-20 max-h-20 rounded-lg shadow-md">
+                        </div>
+                    </div>
+
+                    <!-- Logo Settings -->
+                    <div id="logoSettings" class="space-y-4 mb-6 hidden">
+                        <div>
+                            <label class="block text-white font-medium mb-2">Logo Position</label>
+                            <select id="logoPosition" class="w-full p-2 rounded-lg bg-white/20 border border-white/30 focus:border-white/50 focus:outline-none">
+                                <option value="top-left">Top Left</option>
+                                <option value="top-right">Top Right</option>
+                                <option value="bottom-left">Bottom Left</option>
+                                <option value="bottom-right">Bottom Right</option>
+                                <option value="center">Center</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-white font-medium mb-2">Logo Size: <span id="logoSizeValue">20%</span></label>
+                            <input type="range" id="logoSize" min="5" max="50" value="20" class="w-full">
+                        </div>
+                        <div>
+                            <label class="block text-white font-medium mb-2">Logo Opacity: <span id="logoOpacityValue">80%</span></label>
+                            <input type="range" id="logoOpacity" min="0" max="100" value="80" class="w-full">
+                        </div>
+                    </div>
+
+                    <!-- Watermark Text -->
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-white font-medium mb-2">Watermark Text</label>
+                            <input type="text" id="watermarkText" placeholder="Enter watermark text" class="w-full p-2 rounded-lg bg-white/20 border border-white/30 focus:border-white/50 focus:outline-none placeholder-white/50">
+                        </div>
+                        
+                        <div id="watermarkSettings" class="space-y-4 hidden">
+                            <div>
+                                <label class="block text-white font-medium mb-2">Font</label>
+                                <select id="watermarkFont" class="w-full p-2 rounded-lg bg-white/20 border border-white/30 focus:border-white/50 focus:outline-none">
+                                    <option value="Arial">Arial</option>
+                                    <option value="Verdana">Verdana</option>
+                                    <option value="Georgia">Georgia</option>
+                                    <option value="Inter">Inter</option>
+                                    <option value="Roboto">Roboto</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-white font-medium mb-2">Font Size: <span id="watermarkSizeValue">24px</span></label>
+                                <input type="range" id="watermarkSize" min="12" max="72" value="24" class="w-full">
+                            </div>
+                            <div>
+                                <label class="block text-white font-medium mb-2">Color</label>
+                                <input type="color" id="watermarkColor" value="#ffffff" class="w-full h-10 rounded-lg border border-white/30">
+                            </div>
+                            <div>
+                                <label class="block text-white font-medium mb-2">Position</label>
+                                <select id="watermarkPosition" class="w-full p-2 rounded-lg bg-white/20  border border-white/30 focus:border-white/50 focus:outline-none">
+                                    <option value="center">Center</option>
+                                    <option value="top-left">Top Left</option>
+                                    <option value="top-right">Top Right</option>
+                                    <option value="bottom-left">Bottom Left</option>
+                                    <option value="bottom-right">Bottom Right</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-white font-medium mb-2">Opacity: <span id="watermarkOpacityValue">50%</span></label>
+                                <input type="range" id="watermarkOpacity" min="0" max="100" value="50" class="w-full">
+                            </div>
+                            <div>
+                                <label class="block text-white font-medium mb-2">Rotation: <span id="watermarkRotationValue">0°</span></label>
+                                <input type="range" id="watermarkRotation" min="-45" max="45" value="0" class="w-full">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Middle Column - Output Settings -->
+            <div class="lg:col-span-1">
+                <div class="glass-effect rounded-xl p-6 shadow-xl">
+                    <h2 class="text-2xl font-semibold text-white mb-4">⚙️ Output Settings</h2>
+                    
+                    <!-- Platform Presets -->
+                    <div class="mb-6">
+                        <label class="block text-white font-medium mb-2">Platform Presets</label>
+                        <div class="grid grid-cols-2 gap-2">
+                            <button class="preset-btn bg-white/20 hover:bg-white/30 text-white p-3 rounded-lg text-sm font-medium transition-all duration-200" data-width="1080" data-height="1080">Instagram Post</button>
+                            <button class="preset-btn bg-white/20 hover:bg-white/30 text-white p-3 rounded-lg text-sm font-medium transition-all duration-200" data-width="1080" data-height="1920">Instagram Story</button>
+                            <button class="preset-btn bg-white/20 hover:bg-white/30 text-white p-3 rounded-lg text-sm font-medium transition-all duration-200" data-width="1200" data-height="630">Facebook Post</button>
+                            <button class="preset-btn bg-white/20 hover:bg-white/30 text-white p-3 rounded-lg text-sm font-medium transition-all duration-200" data-width="1600" data-height="900">Twitter Post</button>
+                            <button class="preset-btn bg-white/20 hover:bg-white/30 text-white p-3 rounded-lg text-sm font-medium transition-all duration-200" data-width="1200" data-height="627">LinkedIn Post</button>
+                            <button class="preset-btn bg-white/20 hover:bg-white/30 text-white p-3 rounded-lg text-sm font-medium transition-all duration-200" data-width="1280" data-height="720">YouTube Thumbnail</button>
+                        </div>
+                    </div>
+
+                    <!-- Custom Dimensions -->
+                    <div class="mb-6">
+                        <label class="block text-white font-medium mb-2">Custom Dimensions</label>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-white/70 text-sm mb-1">Width (px)</label>
+                                <input type="number" id="customWidth" placeholder="1080" class="w-full p-2 rounded-lg bg-white/20 text-white border border-white/30 focus:border-white/50 focus:outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-white/70 text-sm mb-1">Height (px)</label>
+                                <input type="number" id="customHeight" placeholder="1080" class="w-full p-2 rounded-lg bg-white/20 text-white border border-white/30 focus:border-white/50 focus:outline-none">
+                            </div>
+                        </div>
+                        <!-- <div class="mt-3">
+                            <label class="flex items-center text-white">
+                                <input type="checkbox" id="aspectRatioLock" class="mr-2 rounded">
+                                <span class="text-sm">Lock aspect ratio</span>
+                            </label>
+                        </div> -->
+                    </div>
+
+                    <!-- Cropping Method -->
+                    <div class="mb-6">
+                        <label class="block text-white font-medium mb-2">Cropping Method</label>
+                        <div class="space-y-2">
+                            <label class="flex items-center text-white">
+                                <input type="radio" name="cropMethod" value="fit" checked class="mr-2">
+                                <span class="text-sm">Fit (Add Padding)</span>
+                            </label>
+                            <label class="flex items-center text-white">
+                                <input type="radio" name="cropMethod" value="fill" class="mr-2">
+                                <span class="text-sm">Fill (Crop Edges)</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Process Button -->
+                    <button id="processBtn" class="w-full bg-gradient-to-r from-pink-500 to-violet-500 hover:from-pink-600 hover:to-violet-600 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200 transform hover:scale-105 shadow-lg">
+                        <span id="processText">🚀 Process Images</span>
+                        <div id="processSpinner" class="hidden inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full processing-animation ml-2"></div>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Right Column - Preview & Download -->
+            <div class="lg:col-span-1">
+                <div class="glass-effect rounded-xl p-6 shadow-xl">
+                    <h2 class="text-2xl font-semibold text-white mb-4">👀 Preview</h2>
+                    
+                    <!-- Preview Canvas -->
+                    <div class="bg-white/10 rounded-lg p-4 mb-6">
+                        <canvas id="previewCanvas" class="max-w-full h-auto border border-white/30 rounded-lg shadow-lg"></canvas>
+                        <div id="previewPlaceholder" class="text-center text-white/70 py-12">
+                            <svg class="w-16 h-16 mx-auto mb-4 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                            </svg>
+                            <p>Upload images to see preview</p>
+                        </div>
+                    </div>
+
+                   
+
+                    <!-- Download Section -->
+                    <div id="downloadSection" class="hidden">
+                        <div class="border-t border-white/30 pt-6">
+                            <h3 class="text-xl font-semibold text-white mb-4">📥 Download</h3>
+                            <button id="downloadBtn" class="w-full bg-gradient-to-r from-green-500 to-teal-500 hover:from-green-600 hover:to-teal-600 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200 transform hover:scale-105 shadow-lg">
+                                💾 Download All Images
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Status Messages -->
+                    <div id="statusMessages" class="mt-4"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Ad placement example -->
+<div class="ad-container my-8">
+    <ins class="adsbygoogle"
+         style="display:block"
+         data-ad-client="ca-pub-XXXXXsdfsdfXXXXX"
+         data-ad-slot="sdfdsf"
+         data-ad-format="auto"
+         data-full-width-responsive="true"></ins>
+    <script>
+         (adsbygoogle = window.adsbygoogle || []).push({});
+    </script>
+  </div>
+    </div>
+
+    <script>
+        // Application State
+        const state = {
+            uploadedImages: [],
+            logoImage: null,
+            processedImages: [],
+            isProcessing: false,
+            outputWidth: 1080,
+            outputHeight: 1080,
+            cropMethod: 'fit',
+            currentImageIndex: 0,
+            imageOffsets: [], // Store custom offsets for each image
+            isDragging: false,
+            dragStart: { x: 0, y: 0 },
+            imagePosition: { x: 0, y: 0 }
+        };
+
+        // DOM Elements
+        const dropZone = document.getElementById('dropZone');
+        const imageInput = document.getElementById('imageInput');
+        const uploadedImagesContainer = document.getElementById('uploadedImages');
+        const logoInput = document.getElementById('logoInput');
+        const logoPreview = document.getElementById('logoPreview');
+        const logoImage = document.getElementById('logoImage');
+        const logoSettings = document.getElementById('logoSettings');
+        const watermarkText = document.getElementById('watermarkText');
+        const watermarkSettings = document.getElementById('watermarkSettings');
+        const previewCanvas = document.getElementById('previewCanvas');
+        const previewPlaceholder = document.getElementById('previewPlaceholder');
+        const processBtn = document.getElementById('processBtn');
+        const processText = document.getElementById('processText');
+        const processSpinner = document.getElementById('processSpinner');
+        const downloadSection = document.getElementById('downloadSection');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const statusMessages = document.getElementById('statusMessages');
+        
+        // New elements for image navigation and dragging
+        const imageNavigation = document.getElementById('imageNavigation');
+        const prevImageBtn = document.getElementById('prevImageBtn');
+        const nextImageBtn = document.getElementById('nextImageBtn');
+        const currentImageIndex = document.getElementById('currentImageIndex');
+        const totalImages = document.getElementById('totalImages');
+        const currentImageName = document.getElementById('currentImageName');
+        const dragInfo = document.getElementById('dragInfo');
+        const resetPositionBtn = document.getElementById('resetPositionBtn');
+
+        if(!imageInput){
+            processBtn.disabled = true
+        }
+        // Initialize Event Listeners
+        function initEventListeners() {
+            // File upload events
+            dropZone.addEventListener('click', () => imageInput.click());
+            dropZone.addEventListener('dragover', handleDragOver);
+            dropZone.addEventListener('dragleave', handleDragLeave);
+            dropZone.addEventListener('drop', handleDrop);
+            imageInput.addEventListener('change', handleImageInput);
+
+            // Logo upload
+            logoInput.addEventListener('change', handleLogoInput);
+
+            // Watermark text input
+            watermarkText.addEventListener('input', handleWatermarkTextInput);
+
+            // Platform presets
+            document.querySelectorAll('.preset-btn').forEach(btn => {
+                btn.addEventListener('click', handlePresetClick);
+            });
+
+            // Custom dimensions
+            document.getElementById('customWidth').addEventListener('input', handleCustomDimensions);
+            document.getElementById('customHeight').addEventListener('input', handleCustomDimensions);
+            // document.getElementById('aspectRatioLock').addEventListener('change', handleAspectRatioLock);
+
+            // Crop method
+            document.querySelectorAll('input[name="cropMethod"]').forEach(radio => {
+                radio.addEventListener('change', handleCropMethodChange);
+            });
+
+            // Brand kit settings
+            document.getElementById('logoPosition').addEventListener('change', updatePreview);
+            document.getElementById('logoSize').addEventListener('input', handleLogoSizeChange);
+            document.getElementById('logoOpacity').addEventListener('input', handleLogoOpacityChange);
+            document.getElementById('watermarkFont').addEventListener('change', updatePreview);
+            document.getElementById('watermarkSize').addEventListener('input', handleWatermarkSizeChange);
+            document.getElementById('watermarkColor').addEventListener('change', updatePreview);
+            document.getElementById('watermarkPosition').addEventListener('change', updatePreview);
+            document.getElementById('watermarkOpacity').addEventListener('input', handleWatermarkOpacityChange);
+            document.getElementById('watermarkRotation').addEventListener('input', handleWatermarkRotationChange);
+
+            // Process and download
+            processBtn.addEventListener('click', processImages);
+            downloadBtn.addEventListener('click', downloadAllImages);
+
+            // Image navigation
+            prevImageBtn.addEventListener('click', showPreviousImage);
+            nextImageBtn.addEventListener('click', showNextImage);
+
+            // Canvas dragging events
+            previewCanvas.addEventListener('mousedown', handleMouseDown);
+            previewCanvas.addEventListener('mousemove', handleMouseMove);
+            previewCanvas.addEventListener('mouseup', handleMouseUp);
+            previewCanvas.addEventListener('mouseleave', handleMouseUp);
+
+            // Touch events for mobile
+            previewCanvas.addEventListener('touchstart', handleTouchStart);
+            previewCanvas.addEventListener('touchmove', handleTouchMove);
+            previewCanvas.addEventListener('touchend', handleTouchEnd);
+
+            // Reset position button
+            resetPositionBtn.addEventListener('click', resetImagePosition);
+        }
+
+        // File Upload Handlers
+        function handleDragOver(e) {
+            e.preventDefault();
+            dropZone.classList.add('drag-over');
+        }
+
+        function handleDragLeave(e) {
+            e.preventDefault();
+            dropZone.classList.remove('drag-over');
+        }
+
+        function handleDrop(e) {
+            e.preventDefault();
+            dropZone.classList.remove('drag-over');
+            const files = Array.from(e.dataTransfer.files);
+            handleFiles(files);
+        }
+
+        function handleImageInput(e) {
+            const files = Array.from(e.target.files);
+            handleFiles(files);
+        }
+
+        function handleFiles(files) {
+            const imageFiles = files.filter(file => file.type.startsWith('image/'));
+            
+            if (imageFiles.length === 0) {
+                showMessage('Please select valid image files (JPG, PNG)', 'error');
+                return;
+            }
+
+            imageFiles.forEach(file => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const imageData = {
+                        file: file,
+                        dataUrl: e.target.result,
+                        name: file.name,
+                        offset: { x: 0, y: 0 } // Initialize offset for each image
+                    };
+                    state.uploadedImages.push(imageData);
+                    updateUploadedImagesList();
+                    if (state.uploadedImages.length === 1) {
+                        state.currentImageIndex = 0;
+                        updateImageNavigation();
+                        updatePreview();
+                    } else {
+                        updateImageNavigation();
+                    }
+                };
+                reader.readAsDataURL(file);
+            });
+
+            showMessage(`${imageFiles.length} image(s) uploaded successfully`, 'success');
+        }
+
+        function updateUploadedImagesList() {
+            uploadedImagesContainer.innerHTML = '';
+            state.uploadedImages.forEach((imageData, index) => {
+                const imageItem = document.createElement('div');
+                imageItem.className = 'flex items-center justify-between bg-white/10 p-3 rounded-lg slide-in';
+                imageItem.innerHTML = `
+                    <div class="flex items-center space-x-3">
+                        <img src="${imageData.dataUrl}" class="w-10 h-10 object-cover rounded-lg shadow-md">
+                        <span class="text-white text-sm truncate">${imageData.name}</span>
+                    </div>
+                    <button class="text-red-400 hover:text-red-300 transition-colors" onclick="removeImage(${index})">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                `;
+                uploadedImagesContainer.appendChild(imageItem);
+            });
+        }
+
+        function removeImage(index) {
+            state.uploadedImages.splice(index, 1);
+            
+            // Adjust current index if necessary
+            if (state.currentImageIndex >= state.uploadedImages.length) {
+                state.currentImageIndex = Math.max(0, state.uploadedImages.length - 1);
+            }
+            
+            updateUploadedImagesList();
+            updateImageNavigation();
+            
+            if (state.uploadedImages.length === 0) {
+                previewCanvas.style.display = 'none';
+                previewPlaceholder.style.display = 'block';
+                imageNavigation.classList.add('hidden');
+                resetPositionBtn.classList.add('hidden');
+            } else {
+                updatePreview();
+            }
+        }
+
+        // Logo Upload Handler
+        function handleLogoInput(e) {
+            const file = e.target.files[0];
+            if (file && file.type.startsWith('image/')) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const img = new Image();
+                    img.onload = () => {
+                        state.logoImage = img;
+                        logoImage.src = e.target.result;
+                        logoPreview.classList.remove('hidden');
+                        logoSettings.classList.remove('hidden');
+                        updatePreview();
+                    };
+                    img.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        // Watermark Text Handler
+        function handleWatermarkTextInput(e) {
+            if (e.target.value.trim()) {
+                watermarkSettings.classList.remove('hidden');
+            } else {
+                watermarkSettings.classList.add('hidden');
+            }
+            updatePreview();
+        }
+
+        // Preset Button Handler
+        function handlePresetClick(e) {
+            const width = parseInt(e.target.dataset.width);
+            const height = parseInt(e.target.dataset.height);
+            
+            state.outputWidth = width;
+            state.outputHeight = height;
+            
+            document.getElementById('customWidth').value = width;
+            document.getElementById('customHeight').value = height;
+            
+            // Update button states
+            document.querySelectorAll('.preset-btn').forEach(btn => {
+                btn.classList.remove('bg-white/40');
+                btn.classList.add('bg-white/20');
+            });
+            e.target.classList.remove('bg-white/20');
+            e.target.classList.add('bg-white/40');
+            
+            updatePreview();
+        }
+
+        // Custom Dimensions Handler
+        function handleCustomDimensions(e) {
+            const width = parseInt(document.getElementById('customWidth').value) || 1080;
+            const height = parseInt(document.getElementById('customHeight').value) || 1080;
+            
+            state.outputWidth = width;
+            state.outputHeight = height;
+            
+            updatePreview();
+        }
+
+        // Aspect Ratio Lock Handler
+        function handleAspectRatioLock(e) {
+            // Implementation for aspect ratio locking
+            if (e.target.checked) {
+                // Lock aspect ratio logic can be added here
+                console.log('Aspect ratio locked');
+            }
+        }
+
+        // Crop Method Handler
+        function handleCropMethodChange(e) {
+            state.cropMethod = e.target.value;
+            updatePreview();
+        }
+
+        // Brand Kit Settings Handlers
+        function handleLogoSizeChange(e) {
+            document.getElementById('logoSizeValue').textContent = e.target.value + '%';
+            updatePreview();
+        }
+
+        function handleLogoOpacityChange(e) {
+            document.getElementById('logoOpacityValue').textContent = e.target.value + '%';
+            updatePreview();
+        }
+
+        function handleWatermarkSizeChange(e) {
+            document.getElementById('watermarkSizeValue').textContent = e.target.value + 'px';
+            updatePreview();
+        }
+
+        function handleWatermarkOpacityChange(e) {
+            document.getElementById('watermarkOpacityValue').textContent = e.target.value + '%';
+            updatePreview();
+        }
+
+        function handleWatermarkRotationChange(e) {
+            document.getElementById('watermarkRotationValue').textContent = e.target.value + '°';
+            updatePreview();
+        }
+
+        // Image Navigation Functions
+        function updateImageNavigation() {
+            if (state.uploadedImages.length <= 1) {
+                imageNavigation.classList.add('hidden');
+                return;
+            }
+
+            imageNavigation.classList.remove('hidden');
+            currentImageIndex.textContent = state.currentImageIndex + 1;
+            totalImages.textContent = state.uploadedImages.length;
+            currentImageName.textContent = state.uploadedImages[state.currentImageIndex]?.name || '';
+
+            // Update navigation buttons
+            prevImageBtn.disabled = state.currentImageIndex === 0;
+            nextImageBtn.disabled = state.currentImageIndex === state.uploadedImages.length - 1;
+        }
+
+        function showPreviousImage() {
+            if (state.currentImageIndex > 0) {
+                state.currentImageIndex--;
+                updateImageNavigation();
+                updatePreview();
+            }
+        }
+
+        function showNextImage() {
+            if (state.currentImageIndex < state.uploadedImages.length - 1) {
+                state.currentImageIndex++;
+                updateImageNavigation();
+                updatePreview();
+            }
+        }
+
+        // Canvas Dragging Functions
+        function handleMouseDown(e) {
+            if (state.uploadedImages.length === 0) return;
+            
+            state.isDragging = true;
+            const rect = previewCanvas.getBoundingClientRect();
+            state.dragStart.x = e.clientX - rect.left;
+            state.dragStart.y = e.clientY - rect.top;
+            
+            dragInfo.classList.remove('hidden');
+            previewCanvas.style.cursor = 'grabbing';
+        }
+
+        function handleMouseMove(e) {
+            if (!state.isDragging || state.uploadedImages.length === 0) return;
+            
+            const rect = previewCanvas.getBoundingClientRect();
+            const currentX = e.clientX - rect.left;
+            const currentY = e.clientY - rect.top;
+            
+            const deltaX = currentX - state.dragStart.x;
+            const deltaY = currentY - state.dragStart.y;
+            
+            // Update the current image's offset
+            const currentImage = state.uploadedImages[state.currentImageIndex];
+            currentImage.offset.x += deltaX;
+            currentImage.offset.y += deltaY;
+            
+            state.dragStart.x = currentX;
+            state.dragStart.y = currentY;
+            
+            updatePreview();
+        }
+
+        function handleMouseUp(e) {
+            if (state.isDragging) {
+                state.isDragging = false;
+                dragInfo.classList.add('hidden');
+                previewCanvas.style.cursor = 'move';
+                resetPositionBtn.classList.remove('hidden');
+            }
+        }
+
+        // Touch Events for Mobile
+        function handleTouchStart(e) {
+            e.preventDefault();
+            if (state.uploadedImages.length === 0) return;
+            
+            const touch = e.touches[0];
+            state.isDragging = true;
+            const rect = previewCanvas.getBoundingClientRect();
+            state.dragStart.x = touch.clientX - rect.left;
+            state.dragStart.y = touch.clientY - rect.top;
+            
+            dragInfo.classList.remove('hidden');
+        }
+
+        function handleTouchMove(e) {
+            e.preventDefault();
+            if (!state.isDragging || state.uploadedImages.length === 0) return;
+            
+            const touch = e.touches[0];
+            const rect = previewCanvas.getBoundingClientRect();
+            const currentX = touch.clientX - rect.left;
+            const currentY = touch.clientY - rect.top;
+            
+            const deltaX = currentX - state.dragStart.x;
+            const deltaY = currentY - state.dragStart.y;
+            
+            // Update the current image's offset
+            const currentImage = state.uploadedImages[state.currentImageIndex];
+            currentImage.offset.x += deltaX;
+            currentImage.offset.y += deltaY;
+            
+            state.dragStart.x = currentX;
+            state.dragStart.y = currentY;
+            
+            updatePreview();
+        }
+
+        function handleTouchEnd(e) {
+            e.preventDefault();
+            if (state.isDragging) {
+                state.isDragging = false;
+                dragInfo.classList.add('hidden');
+                resetPositionBtn.classList.remove('hidden');
+            }
+        }
+
+        function resetImagePosition() {
+            if (state.uploadedImages.length === 0) return;
+            
+            const currentImage = state.uploadedImages[state.currentImageIndex];
+            currentImage.offset.x = 0;
+            currentImage.offset.y = 0;
+            
+            updatePreview();
+            resetPositionBtn.classList.add('hidden');
+        }
+        function updatePreview() {
+            if (state.uploadedImages.length === 0) {
+                previewCanvas.style.display = 'none';
+                previewPlaceholder.style.display = 'block';
+                return;
+            }
+
+            previewCanvas.style.display = 'block';
+            previewPlaceholder.style.display = 'none';
+
+            const canvas = previewCanvas;
+            const ctx = canvas.getContext('2d');
+            const firstImage = state.uploadedImages[0];
+
+            const img = new Image();
+            img.onload = () => {
+                // Set canvas size
+                canvas.width = state.outputWidth;
+                canvas.height = state.outputHeight;
+
+                // Clear canvas
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                // Draw image based on crop method
+                drawImageWithCropMethod(ctx, img, canvas.width, canvas.height);
+
+                // Draw logo if available
+                if (state.logoImage) {
+                    drawLogo(ctx, canvas.width, canvas.height);
+                }
+
+                // Draw watermark text if available
+                const watermarkTextValue = watermarkText.value.trim();
+                if (watermarkTextValue) {
+                    drawWatermarkText(ctx, watermarkTextValue, canvas.width, canvas.height);
+                }
+            };
+            img.src = firstImage.dataUrl;
+        }
+
+        // Image Drawing with Crop Method
+        function drawImageWithCropMethod(ctx, img, canvasWidth, canvasHeight, offset = { x: 0, y: 0 }) {
+            if (state.cropMethod === 'fit') {
+                // Fit mode - maintain aspect ratio, add padding
+                const scale = Math.min(canvasWidth / img.width, canvasHeight / img.height);
+                const scaledWidth = img.width * scale;
+                const scaledHeight = img.height * scale;
+                const x = (canvasWidth - scaledWidth) / 2 + offset.x;
+                const y = (canvasHeight - scaledHeight) / 2 + offset.y;
+                
+                ctx.drawImage(img, x, y, scaledWidth, scaledHeight);
+            } else {
+                // Fill mode - fill canvas, crop if necessary
+                const scale = Math.max(canvasWidth / img.width, canvasHeight / img.height);
+                const scaledWidth = img.width * scale;
+                const scaledHeight = img.height * scale;
+                const x = (canvasWidth - scaledWidth) / 2 + offset.x;
+                const y = (canvasHeight - scaledHeight) / 2 + offset.y;
+                
+                ctx.drawImage(img, x, y, scaledWidth, scaledHeight);
+            }
+        }
+
+        // Logo Drawing
+        function drawLogo(ctx, canvasWidth, canvasHeight) {
+            const logoSizePercent = parseInt(document.getElementById('logoSize').value);
+            const logoOpacityPercent = parseInt(document.getElementById('logoOpacity').value);
+            const logoPosition = document.getElementById('logoPosition').value;
+
+            const logoSize = Math.min(canvasWidth, canvasHeight) * (logoSizePercent / 100);
+            const logoScale = logoSize / Math.max(state.logoImage.width, state.logoImage.height);
+            const logoWidth = state.logoImage.width * logoScale;
+            const logoHeight = state.logoImage.height * logoScale;
+
+            let x, y;
+            const margin = 20;
+
+            switch (logoPosition) {
+                case 'top-left':
+                    x = margin;
+                    y = margin;
+                    break;
+                case 'top-right':
+                    x = canvasWidth - logoWidth - margin;
+                    y = margin;
+                    break;
+                case 'bottom-left':
+                    x = margin;
+                    y = canvasHeight - logoHeight - margin;
+                    break;
+                case 'bottom-right':
+                    x = canvasWidth - logoWidth - margin;
+                    y = canvasHeight - logoHeight - margin;
+                    break;
+                case 'center':
+                    x = (canvasWidth - logoWidth) / 2;
+                    y = (canvasHeight - logoHeight) / 2;
+                    break;
+            }
+
+            ctx.save();
+            ctx.globalAlpha = logoOpacityPercent / 100;
+            ctx.drawImage(state.logoImage, x, y, logoWidth, logoHeight);
+            ctx.restore();
+        }
+
+        // Watermark Text Drawing
+        function drawWatermarkText(ctx, text, canvasWidth, canvasHeight) {
+            const fontSize = parseInt(document.getElementById('watermarkSize').value);
+            const fontFamily = document.getElementById('watermarkFont').value;
+            const color = document.getElementById('watermarkColor').value;
+            const opacity = parseInt(document.getElementById('watermarkOpacity').value);
+            const rotation = parseInt(document.getElementById('watermarkRotation').value);
+            const position = document.getElementById('watermarkPosition').value;
+
+            ctx.save();
+            ctx.globalAlpha = opacity / 100;
+            ctx.font = `${fontSize}px ${fontFamily}`;
+            ctx.fillStyle = color;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+
+            let x, y;
+            const margin = 30;
+
+            switch (position) {
+                case 'top-left':
+                    x = margin;
+                    y = margin;
+                    ctx.textAlign = 'left';
+                    ctx.textBaseline = 'top';
+                    break;
+                case 'top-right':
+                    x = canvasWidth - margin;
+                    y = margin;
+                    ctx.textAlign = 'right';
+                    ctx.textBaseline = 'top';
+                    break;
+                case 'bottom-left':
+                    x = margin;
+                    y = canvasHeight - margin;
+                    ctx.textAlign = 'left';
+                    ctx.textBaseline = 'bottom';
+                    break;
+                case 'bottom-right':
+                    x = canvasWidth - margin;
+                    y = canvasHeight - margin;
+                    ctx.textAlign = 'right';
+                    ctx.textBaseline = 'bottom';
+                    break;
+                case 'center':
+                default:
+                    x = canvasWidth / 2;
+                    y = canvasHeight / 2;
+                    break;
+            }
+
+            ctx.translate(x, y);
+            ctx.rotate((rotation * Math.PI) / 180);
+            ctx.fillText(text, 0, 0);
+            ctx.restore();
+        }
+
+        // Process Images Function
+        async function processImages() {
+            if (state.uploadedImages.length === 0) {
+                showMessage('Please upload images first', 'error');
+                return;
+            }
+
+            if (state.isProcessing) return;
+
+            state.isProcessing = true;
+            processText.textContent = 'Processing...';
+            processSpinner.classList.remove('hidden');
+            processBtn.disabled = true;
+
+            try {
+                state.processedImages = [];
+
+                for (let i = 0; i < state.uploadedImages.length; i++) {
+                    const imageData = state.uploadedImages[i];
+                    const processedImage = await processImage(imageData);
+                    state.processedImages.push(processedImage);
+
+                    // Update progress
+                    const progress = Math.round(((i + 1) / state.uploadedImages.length) * 100);
+                    processText.textContent = `Processing... ${progress}%`;
+                }
+
+                downloadSection.classList.remove('hidden');
+                showMessage(`Successfully processed ${state.processedImages.length} images`, 'success');
+
+            } catch (error) {
+                console.error('Processing error:', error);
+                showMessage('Error processing images. Please try again.', 'error');
+            } finally {
+                state.isProcessing = false;
+                processText.textContent = '🚀 Process Images';
+                processSpinner.classList.add('hidden');
+                processBtn.disabled = false;
+            }
+        }
+
+        // Process Single Image
+        function processImage(imageData) {
+            return new Promise((resolve, reject) => {
+                const img = new Image();
+                img.onload = () => {
+                    try {
+                        const canvas = document.createElement('canvas');
+                        const ctx = canvas.getContext('2d');
+
+                        canvas.width = state.outputWidth;
+                        canvas.height = state.outputHeight;
+
+                        // Draw image
+                        drawImageWithCropMethod(ctx, img, canvas.width, canvas.height, imageData.offset);
+
+                        // Draw logo if available
+                        if (state.logoImage) {
+                            drawLogo(ctx, canvas.width, canvas.height);
+                        }
+
+                        // Draw watermark text if available
+                        const watermarkTextValue = watermarkText.value.trim();
+                        if (watermarkTextValue) {
+                            drawWatermarkText(ctx, watermarkTextValue, canvas.width, canvas.height);
+                        }
+
+                        const processedDataUrl = canvas.toDataURL('image/png');
+                        const fileName = generateFileName(imageData.name);
+
+                        resolve({
+                            dataUrl: processedDataUrl,
+                            fileName: fileName,
+                            originalName: imageData.name
+                        });
+                    } catch (error) {
+                        reject(error);
+                    }
+                };
+                img.onerror = reject;
+                img.src = imageData.dataUrl;
+            });
+        }
+
+        // Generate File Name
+        function generateFileName(originalName) {
+            const nameWithoutExt = originalName.replace(/\.[^/.]+$/, '');
+            const dimensions = `${state.outputWidth}x${state.outputHeight}`;
+            return `${nameWithoutExt}_${dimensions}.png`;
+        }
+
+        // Download All Images
+        async function downloadAllImages() {
+            if (state.processedImages.length === 0) {
+                showMessage('No processed images to download', 'error');
+                return;
+            }
+
+            try {
+                const zip = new JSZip();
+
+                state.processedImages.forEach(image => {
+                    const base64Data = image.dataUrl.split(',')[1];
+                    zip.file(image.fileName, base64Data, { base64: true });
+                });
+
+                const content = await zip.generateAsync({ type: 'blob' });
+                const url = URL.createObjectURL(content);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = 'processed_images.zip';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(url);
+
+                showMessage('Images downloaded successfully!', 'success');
+            } catch (error) {
+                console.error('Download error:', error);
+                showMessage('Error downloading images. Please try again.', 'error');
+            }
+        }
+
+        // Show Message Function
+        function showMessage(message, type = 'info') {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `p-3 rounded-lg mb-2 fade-in ${
+                type === 'success' ? 'bg-green-500/20 text-green-200 border border-green-500/30' :
+                type === 'error' ? 'bg-red-500/20 text-red-200 border border-red-500/30' :
+                'bg-blue-500/20 text-blue-200 border border-blue-500/30'
+            }`;
+            messageDiv.textContent = message;
+
+            statusMessages.appendChild(messageDiv);
+
+            // Auto remove after 5 seconds
+            setTimeout(() => {
+                if (messageDiv.parentNode) {
+                    messageDiv.parentNode.removeChild(messageDiv);
+                }
+            }, 5000);
+        }
+
+        // Initialize Application
+        function initApp() {
+            initEventListeners();
+            showMessage('Brand Kit Image Processor is ready! Upload your images to get started.', 'success');
+        }
+
+        // Start the application when DOM is loaded
+        document.addEventListener('DOMContentLoaded', initApp);
+    </script>
+</body>
+</html>
