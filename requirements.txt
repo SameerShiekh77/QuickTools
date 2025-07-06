@@ -1,0 +1,13 @@
+Django
+djangorestframework
+python-docx
+python-pptx
+PyPDF2
+pdf2image
+Pillow
+# pdf-lib
+pymupdf
+reportlab
+python-magic
+celery
+redis

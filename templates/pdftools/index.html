@@ -1,0 +1,219 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto">
+    <!-- Tab Navigation -->
+    <div class="flex flex-wrap justify-center mb-8 bg-white rounded-xl shadow-lg p-2">
+        <button class="tab-btn active px-6 py-3 mx-1 mb-2 rounded-lg font-medium transition-all duration-200 text-blue-600 bg-blue-50" 
+                data-tab="merge">
+            <i class="fas fa-layer-group mr-2"></i>Merge PDFs
+        </button>
+        <button class="tab-btn px-6 py-3 mx-1 mb-2 rounded-lg font-medium transition-all duration-200 text-gray-600 hover:text-blue-600 hover:bg-blue-50" 
+                data-tab="pdf-to-word">
+            <i class="fas fa-file-word mr-2"></i>PDF to Word
+        </button>
+        <button class="tab-btn px-6 py-3 mx-1 mb-2 rounded-lg font-medium transition-all duration-200 text-gray-600 hover:text-blue-600 hover:bg-blue-50" 
+                data-tab="pdf-to-ppt">
+            <i class="fas fa-file-powerpoint mr-2"></i>PDF to PowerPoint
+        </button>
+        <button class="tab-btn px-6 py-3 mx-1 mb-2 rounded-lg font-medium transition-all duration-200 text-gray-600 hover:text-blue-600 hover:bg-blue-50" 
+                data-tab="password-protect">
+            <i class="fas fa-lock mr-2"></i>Password Protect
+        </button>
+    </div>
+
+    <!-- Merge PDFs Tab -->
+    <div id="merge-tab" class="tab-content active bg-white rounded-xl shadow-lg p-8">
+        <div class="text-center mb-6">
+            <h2 class="text-2xl font-bold text-gray-800 mb-2">Merge PDF Files</h2>
+            <p class="text-gray-600">Combine multiple PDF files into a single document</p>
+        </div>
+
+        <!-- File Upload Area -->
+        <div class="file-drop-zone rounded-xl p-8 text-center mb-6 cursor-pointer" 
+             id="merge-drop-zone"
+             onclick="document.getElementById('merge-file-input').click()">
+            <i class="fas fa-cloud-upload-alt text-4xl text-gray-400 mb-4"></i>
+            <p class="text-lg text-gray-600 mb-2">Drag and drop PDF files here</p>
+            <p class="text-sm text-gray-500">or click to browse (minimum 2 files)</p>
+            <input type="file" id="merge-file-input" multiple accept=".pdf" class="hidden">
+        </div>
+
+        <!-- File List -->
+        <div id="merge-file-list" class="hidden mb-6">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4">Uploaded Files</h3>
+            <div id="merge-files" class="space-y-2"></div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="flex justify-center space-x-4">
+            <button id="merge-process-btn" class="hidden bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg font-medium transition-colors duration-200">
+                <i class="fas fa-layer-group mr-2"></i>Merge PDFs
+            </button>
+            <button id="merge-download-btn" class="hidden bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-lg font-medium transition-colors duration-200">
+                <i class="fas fa-download mr-2"></i>Download Merged PDF
+            </button>
+        </div>
+
+        <!-- Loading Indicator -->
+        <div id="merge-loading" class="hidden text-center mt-6">
+            <div class="loading-spinner mx-auto mb-4"></div>
+            <p class="text-gray-600">Merging PDFs...</p>
+        </div>
+    </div>
+
+    <!-- PDF to Word Tab -->
+    <div id="pdf-to-word-tab" class="tab-content bg-white rounded-xl shadow-lg p-8">
+        <div class="text-center mb-6">
+            <h2 class="text-2xl font-bold text-gray-800 mb-2">Convert PDF to Word</h2>
+            <p class="text-gray-600">Convert your PDF document to an editable Word file with preserved formatting and images</p>
+        </div>
+
+        <!-- File Upload Area -->
+        <div class="file-drop-zone rounded-xl p-8 text-center mb-6 cursor-pointer" 
+             id="word-drop-zone"
+             onclick="document.getElementById('word-file-input').click()">
+            <i class="fas fa-file-word text-4xl text-blue-600 mb-4"></i>
+            <p class="text-lg text-gray-600 mb-2">Drag and drop a PDF file here</p>
+            <p class="text-sm text-gray-500">or click to browse (single file only)</p>
+            <input type="file" id="word-file-input" accept=".pdf" class="hidden">
+        </div>
+
+        <!-- File Preview -->
+        <div id="word-file-preview" class="hidden mb-6">
+            <div class="flex items-center p-4 bg-gray-50 rounded-lg">
+                <i class="fas fa-file-pdf text-red-500 text-2xl mr-4"></i>
+                <div class="flex-1">
+                    <p id="word-file-name" class="font-medium text-gray-800"></p>
+                    <p id="word-file-size" class="text-sm text-gray-500"></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="flex justify-center space-x-4">
+            <button id="word-process-btn" class="hidden bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg font-medium transition-colors duration-200">
+                <i class="fas fa-file-word mr-2"></i>Convert to Word
+            </button>
+            <button id="word-download-btn" class="hidden bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-lg font-medium transition-colors duration-200">
+                <i class="fas fa-download mr-2"></i>Download Word Document
+            </button>
+        </div>
+
+        <!-- Loading Indicator -->
+        <div id="word-loading" class="hidden text-center mt-6">
+            <div class="loading-spinner mx-auto mb-4"></div>
+            <p class="text-gray-600">Converting PDF to Word...</p>
+        </div>
+    </div>
+
+    <!-- PDF to PowerPoint Tab -->
+    <div id="pdf-to-ppt-tab" class="tab-content bg-white rounded-xl shadow-lg p-8">
+        <div class="text-center mb-6">
+            <h2 class="text-2xl font-bold text-gray-800 mb-2">Convert PDF to PowerPoint</h2>
+            <p class="text-gray-600">Transform your PDF into an editable PowerPoint presentation with preserved images</p>
+        </div>
+
+        <!-- File Upload Area -->
+        <div class="file-drop-zone rounded-xl p-8 text-center mb-6 cursor-pointer" 
+             id="ppt-drop-zone"
+             onclick="document.getElementById('ppt-file-input').click()">
+            <i class="fas fa-file-powerpoint text-4xl text-orange-600 mb-4"></i>
+            <p class="text-lg text-gray-600 mb-2">Drag and drop a PDF file here</p>
+            <p class="text-sm text-gray-500">or click to browse (single file only)</p>
+            <input type="file" id="ppt-file-input" accept=".pdf" class="hidden">
+        </div>
+
+        <!-- File Preview -->
+        <div id="ppt-file-preview" class="hidden mb-6">
+            <div class="flex items-center p-4 bg-gray-50 rounded-lg">
+                <i class="fas fa-file-pdf text-red-500 text-2xl mr-4"></i>
+                <div class="flex-1">
+                    <p id="ppt-file-name" class="font-medium text-gray-800"></p>
+                    <p id="ppt-file-size" class="text-sm text-gray-500"></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="flex justify-center space-x-4">
+            <button id="ppt-process-btn" class="hidden bg-orange-600 hover:bg-orange-700 text-white px-8 py-3 rounded-lg font-medium transition-colors duration-200">
+                <i class="fas fa-file-powerpoint mr-2"></i>Convert to PowerPoint
+            </button>
+            <button id="ppt-download-btn" class="hidden bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-lg font-medium transition-colors duration-200">
+                <i class="fas fa-download mr-2"></i>Download PowerPoint
+            </button>
+        </div>
+
+        <!-- Loading Indicator -->
+        <div id="ppt-loading" class="hidden text-center mt-6">
+            <div class="loading-spinner mx-auto mb-4"></div>
+            <p class="text-gray-600">Converting PDF to PowerPoint...</p>
+        </div>
+    </div>
+
+    <!-- Password Protect Tab -->
+    <div id="password-protect-tab" class="tab-content bg-white rounded-xl shadow-lg p-8">
+        <div class="text-center mb-6">
+            <h2 class="text-2xl font-bold text-gray-800 mb-2">Password Protect PDF</h2>
+            <p class="text-gray-600">Add password protection to secure your PDF documents</p>
+        </div>
+
+        <!-- File Upload Area -->
+        <div class="file-drop-zone rounded-xl p-8 text-center mb-6 cursor-pointer" 
+             id="protect-drop-zone"
+             onclick="document.getElementById('protect-file-input').click()">
+            <i class="fas fa-shield-alt text-4xl text-green-600 mb-4"></i>
+            <p class="text-lg text-gray-600 mb-2">Drag and drop a PDF file here</p>
+            <p class="text-sm text-gray-500">or click to browse (single file only)</p>
+            <input type="file" id="protect-file-input" accept=".pdf" class="hidden">
+        </div>
+
+        <!-- File Preview -->
+        <div id="protect-file-preview" class="hidden mb-6">
+            <div class="flex items-center p-4 bg-gray-50 rounded-lg">
+                <i class="fas fa-file-pdf text-red-500 text-2xl mr-4"></i>
+                <div class="flex-1">
+                    <p id="protect-file-name" class="font-medium text-gray-800"></p>
+                    <p id="protect-file-size" class="text-sm text-gray-500"></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Password Input -->
+        <div id="protect-password-section" class="hidden mb-6">
+            <div class="max-w-md mx-auto space-y-4">
+                <div>
+                    <label for="protect-password" class="block text-sm font-medium text-gray-700 mb-2">Enter Password</label>
+                    <input type="password" id="protect-password" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" 
+                           placeholder="Enter a strong password" minlength="6">
+                </div>
+                <div>
+                    <label for="protect-confirm-password" class="block text-sm font-medium text-gray-700 mb-2">Confirm Password</label>
+                    <input type="password" id="protect-confirm-password" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" 
+                           placeholder="Confirm your password" minlength="6">
+                </div>
+                <p class="text-xs text-gray-500">Password must be at least 6 characters long</p>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="flex justify-center space-x-4">
+            <button id="protect-process-btn" class="hidden bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-lg font-medium transition-colors duration-200">
+                <i class="fas fa-lock mr-2"></i>Protect PDF
+            </button>
+            <button id="protect-download-btn" class="hidden bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-lg font-medium transition-colors duration-200">
+                <i class="fas fa-download mr-2"></i>Download Protected PDF
+            </button>
+        </div>
+
+        <!-- Loading Indicator -->
+        <div id="protect-loading" class="hidden text-center mt-6">
+            <div class="loading-spinner mx-auto mb-4"></div>
+            <p class="text-gray-600">Protecting PDF...</p>
+        </div>
+    </div>
+</div>
+
+<script src="{% load static %}{% static 'js/app.js' %}"></script>
+{% endblock %}
