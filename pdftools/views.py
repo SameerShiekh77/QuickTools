@@ -20,6 +20,13 @@ from pdftools.utils import (
     validate_pdf_file
 )
 
+
+
+def home_view(request):
+    """Homepage view"""
+    return render(request, 'home.html')
+
+
 def index(request):
     """Main page with PDF tools interface"""
     return render(request, 'pdftools/index.html')

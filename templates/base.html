@@ -60,16 +60,83 @@
             color: white;
         }
     </style>
+
+    {% block style %}{% endblock style %}
 </head>
 <body class="bg-gray-50 min-h-screen">
-    <div class="container mx-auto px-4 py-8">
-        <header class="text-center mb-12">
-            <h1 class="text-4xl font-bold text-gray-800 mb-4">PDF PowerKit</h1>
-            <p class="text-xl text-gray-600">Your all-in-one PDF manipulation toolkit</p>
-        </header>
+     <!-- Navigation -->
+     <nav class="bg-white shadow-sm border-b border-gray-100">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <a href="/" class="flex items-center space-x-3">
+                        <div class="w-10 h-10 gradient-bg rounded-xl flex items-center justify-center">
+                            <i class="fas fa-tools text-white text-lg"></i>
+                        </div>
+                        <span class="text-xl font-bold text-gray-900">ToolSuite Pro</span>
+                    </a>
+                </div>
+                <div class="hidden md:flex items-center space-x-6">
+                    <a href="/" class="text-gray-600 hover:text-blue-600 font-medium transition-colors">Home</a>
+                    <a href="/pdftools/" class="text-gray-600 hover:text-blue-600 font-medium transition-colors">PDF Tools</a>
+                    <a href="/brandkit/" class="text-gray-600 hover:text-blue-600 font-medium transition-colors">Brand Kit</a>
+                    {% block nav_extra %}{% endblock %}
+                </div>
+                <div class="md:hidden">
+                    <button id="mobile-menu-btn" class="text-gray-600 hover:text-blue-600">
+                        <i class="fas fa-bars text-xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="md:hidden hidden bg-white border-t border-gray-100">
+            <div class="px-4 py-6 space-y-4">
+                <a href="/" class="block text-gray-600 hover:text-blue-600 font-medium">Home</a>
+                <a href="/pdftools/" class="block text-gray-600 hover:text-blue-600 font-medium">PDF Tools</a>
+                <a href="/brandkit/" class="block text-gray-600 hover:text-blue-600 font-medium">Brand Kit</a>
+            </div>
+        </div>
+    </nav>
 
-        {% block content %}{% endblock %}
-    </div>
+  
+    {% block content %}{% endblock %}
+
+     <!-- Footer -->
+     <footer class="bg-gray-900 text-white py-12 mt-auto">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid md:grid-cols-3 gap-8">
+                <div>
+                    <div class="flex items-center space-x-3 mb-4">
+                        <div class="w-10 h-10 gradient-bg rounded-xl flex items-center justify-center">
+                            <i class="fas fa-tools text-white text-lg"></i>
+                        </div>
+                        <span class="text-xl font-bold">ToolSuite Pro</span>
+                    </div>
+                    <p class="text-gray-400">Professional digital tools for everyone</p>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Tools</h3>
+                    <div class="space-y-2">
+                        <a href="/pdftools/" class="block text-gray-400 hover:text-white transition-colors">PDF PowerKit</a>
+                        <a href="/brandkit/" class="block text-gray-400 hover:text-white transition-colors">Brand Kit</a>
+                    </div>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Support</h3>
+                    <div class="space-y-2">
+                        <a href="#" class="block text-gray-400 hover:text-white transition-colors">Help Center</a>
+                        <a href="#" class="block text-gray-400 hover:text-white transition-colors">Contact</a>
+                    </div>
+                </div>
+            </div>
+            <div class="border-t border-gray-800 mt-8 pt-8 text-center">
+                <p class="text-gray-400">© 2024 ToolSuite Pro. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
 
     <!-- Toast Notification -->
     <div id="toast" class="toast">

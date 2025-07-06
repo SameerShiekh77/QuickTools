@@ -1,13 +1,9 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Brand Kit Image Processor</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXX" crossorigin="anonymous"></script>
+{% extends 'base.html' %}
+
+{% block title %}Brand Kit Image Processor{% endblock title %}
+
+{% block style %}
+   
     <style>
         * {
             font-family: 'Inter', sans-serif;
@@ -46,8 +42,12 @@
             to { opacity: 1; }
         }
     </style>
-</head>
-<body class="min-h-screen gradient-bg">
+    {% endblock style %}
+
+
+{% block content %}
+
+<div class="min-h-screen gradient-bg">
     <div class="container mx-auto px-4 py-8">
         <!-- Header -->
         <div class="text-center mb-12">
@@ -258,17 +258,7 @@
         </div>
 
         <!-- Ad placement example -->
-<div class="ad-container my-8">
-    <ins class="adsbygoogle"
-         style="display:block"
-         data-ad-client="ca-pub-XXXXXsdfsdfXXXXX"
-         data-ad-slot="sdfdsf"
-         data-ad-format="auto"
-         data-full-width-responsive="true"></ins>
-    <script>
-         (adsbygoogle = window.adsbygoogle || []).push({});
-    </script>
-  </div>
+
     </div>
 
     <script>
@@ -1032,5 +1022,8 @@
         // Start the application when DOM is loaded
         document.addEventListener('DOMContentLoaded', initApp);
     </script>
-</body>
+</div>
+
+{% endblock content %}
+
 </html>

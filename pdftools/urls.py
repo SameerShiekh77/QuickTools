@@ -2,7 +2,8 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-    path('', views.index, name='index'),
+    path('', views.home_view, name='home'),
+    path('pdftools/', views.index, name='index'),
     path('upload/', views.upload_files, name='upload_files'),
     path('merge/', views.process_merge, name='process_merge'),
     path('pdf-to-word/', views.process_pdf_to_word, name='process_pdf_to_word'),
